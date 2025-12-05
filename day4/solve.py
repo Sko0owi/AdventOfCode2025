@@ -1,55 +1,97 @@
 from tqdm import tqdm
+from copy import copy
 import numpy as np
 
 
-    
-inputData = []
-with open("input_1.txt") as f:
-    inputData = f.readlines()
-    inputData = [line.strip() for line in inputData]
+directions = [(-1,-1), (-1,0), (-1,1), (0, -1), (0,1), (1, -1), (1,0), (1,1)]
 
 
-print(inputData)
+def star1(inputData):
+    for i, row in enumerate(inputData):
+        inputData[i] = list(row)
 
-good_papers = 0
-
-changed = True
-while changed:
-    changed = False
-    mask = np.zeros((len(inputData), len(inputData[0])))
+    good_papers = 0
     for y, row in enumerate(inputData):
-        new_str = list(row)
         for x, elem in enumerate(row):
             count_paper = 0
-            for delta_x in range(-1,2):
-                for delta_y in range(-1,2):
+
+            for delta_x, delta_y in directions:
+                new_x = x + delta_x
+                new_y = y + delta_y
+                if new_x < 0 or new_x >= len(row):
+                    continue
+                if new_y < 0 or new_y >= len(inputData):
+                    continue
+                count_paper += 1 if inputData[new_y][new_x] == '@' else 0
+
+            if count_paper < 4 and elem == '@':
+                good_papers += 1
+
+    return good_papers
+
+
+def star2(inputData):
+    for i, row in enumerate(inputData):
+        inputData[i] = list(row)
+
+    good_papers = 0
+    changed = True
+    while changed:
+        changed = False
+        for y, row in enumerate(inputData):
+            for x, elem in enumerate(row):
+                count_paper = 0
+
+                for delta_x, delta_y in directions:
                     new_x = x + delta_x
                     new_y = y + delta_y
                     if new_x < 0 or new_x >= len(row):
                         continue
                     if new_y < 0 or new_y >= len(inputData):
                         continue
-                    if delta_x == 0 and delta_y == 0:
-                        continue
                     count_paper += 1 if inputData[new_y][new_x] == '@' else 0
 
-            # print(count_paper)
-            if count_paper < 4 and elem == '@':
-                good_papers += 1
-                mask[y][x] = 1
-                new_str[x] = '.'
-                inputData[y] = "".join(new_str)
-                changed = True
-                # print(y,x)
-    for y in range(len(inputData)):
-        new_str = list(inputData[y])
-        for x in range(len(inputData[0])):
-            if mask[y][x]:
-                new_str[x] = "."
-        
-        inputData[y] = "".join(new_str)
+                if count_paper < 4 and elem == '@':
+                    good_papers += 1
+                    row[x] = '.'
+                    changed = True
 
-for row in inputData:
-    print(row)
-# print(inputData)
-print(good_papers)
+    return good_papers
+
+
+
+if __name__ == '__main__':
+
+    inputData_example_1, inputData_example_2 = [], []
+    inputData_star_1, inputData_star_2 = [], []
+
+    with open("input_example_1.txt") as f:
+        inputData_example_1 = f.readlines()
+        inputData_example_1 = [line.strip() for line in inputData_example_1]
+    # print(inputData_example_1)
+
+    with open("input_star_1.txt") as f:
+        inputData_star_1 = f.readlines()
+        inputData_star_1 = [line.strip() for line in inputData_star_1]
+    # print(inputData_star_1)
+
+    result_example_1 = star1(inputData_example_1)
+
+    print(f"For example 1 score is: {result_example_1}")
+
+    assert result_example_1 == 13
+
+    result_star_1 = star1(inputData_star_1)
+    print(f"For star 1 score is: {result_star_1}")
+
+    inputData_example_2 = copy(inputData_example_1)
+    inputData_star_2 = copy(inputData_star_1)
+
+    result_example_2 = star2(inputData_example_2)
+
+    print(f"For example 2 score is: {result_example_2}")
+
+    assert result_example_2 == 43
+
+    result_star_2 = star2(inputData_star_2)
+    print(f"For star 2 score is: {result_star_2}")   
