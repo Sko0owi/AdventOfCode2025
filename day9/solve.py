@@ -19,37 +19,7 @@ def build_edges(points):
     n = len(points)
     return [(points[i], points[(i+1)%n]) for i in range(n)]
 
-def is_on_boundary(pt, points, edges):
-    x,y = pt
-    if pt in points:
-        return True
-    for (ax,ay),(bx,by) in edges:
-        if ax == bx == x:
-            if min(ay,by) <= y <= max(ay,by):
-                return True
-        if ay == by == y:
-            if min(ax,bx) <= x <= max(ax,bx):
-                return True
-    return False
-
-
-def point_in_poly(pt, points, edges):
-    if is_on_boundary(pt, points, edges):
-        return True
-    x,_ = pt
-    inside = False
-    n = len(points)
-    for i in range(n):
-        x1,_ = points[i]
-        x2,_ = points[(i+1)%n]
-
-        if x1 != x2:
-            continue
-        if x1 > x:
-            inside = not inside
-    return inside
-
-def rectangle_area_if_valid(p1, p2, points, edges):
+def rectangle_area_if_valid(p1, p2, edges):
     x1,y1 = p1
     x2,y2 = p2
 
@@ -57,11 +27,6 @@ def rectangle_area_if_valid(p1, p2, points, edges):
 
     xL,xR = sorted((x1,x2))
     yT,yB = sorted((y1,y2))
-
-    C = (x1,y2)
-    D = (x2,y1)
-    if not point_in_poly(C, points, edges): return 0
-    if not point_in_poly(D, points, edges): return 0
 
     for (ax,ay),(bx,by) in edges:
         if ax==bx:
@@ -92,7 +57,7 @@ def star2(inputData, DEBUG=False):
             currentCorner = inputData[i]
             nextCorner = inputData[j]
 
-            area = rectangle_area_if_valid(currentCorner,nextCorner,inputData,edges)
+            area = rectangle_area_if_valid(currentCorner,nextCorner,edges)
             biggestArea = max(biggestArea, area)
 
     return biggestArea
